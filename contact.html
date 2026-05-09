@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vital Stream - About &amp; Contact</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+  />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="navbar">
+    <div class="container nav-wrap">
+      <a class="logo" href="index.html">
+        <span class="logo-icon"><i class="fa-solid fa-droplet"></i></span>
+        Vital Stream
+      </a>
+
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="Search/search/VS.html">Inventory</a>
+        <a class="active" href="contact.html">Contact</a>
+      </nav>
+
+      <a class="btn btn-outline" href="login/login.html">Login</a>
+    </div>
+  </header>
+
+  <main class="contact-page container">
+    <div class="contact-layout">
+      <section class="contact-main">
+        <h1>About Vital Stream</h1>
+        <p class="lead">
+          Vital Stream connects blood donors and hospitals with clinical precision and human
+          warmth. We focus on fast registration, clear inventory visibility, and emergency
+          requests when minutes matter.
+        </p>
+        <ul class="about-list">
+          <li><i class="fa-solid fa-check"></i> Real-time oriented workflows (inventory + alerts)</li>
+          <li><i class="fa-solid fa-check"></i> Simple vanilla web stack for your team to maintain</li>
+          <li><i class="fa-solid fa-check"></i> Built around responsible data practices as you scale</li>
+        </ul>
+
+        <h2>Contact us</h2>
+        <p class="muted">Send a message and we will get back to you. This form opens your email app.</p>
+
+        <form class="contact-form" id="contactForm" action="#" method="get">
+          <label>
+            Name
+            <input type="text" name="name" id="contactName" required placeholder="Your name" />
+          </label>
+          <label>
+            Email
+            <input type="email" name="email" id="contactEmail" required placeholder="you@example.com" />
+          </label>
+          <label>
+            Message
+            <textarea name="body" id="contactMessage" rows="5" required placeholder="How can we help?"></textarea>
+          </label>
+          <button type="submit" class="btn btn-primary contact-submit">Send message</button>
+        </form>
+        <p id="contactStatus" class="contact-status" aria-live="polite"></p>
+      </section>
+
+      <aside class="contact-sidebar">
+        <h3>Quick links</h3>
+        <p class="muted small">Donate and emergency actions are on the home page—no duplicate buttons here.</p>
+        <ul class="sidebar-links">
+          <li><a href="Search/search/VS.html"><i class="fa-solid fa-vial-circle-check"></i> Blood inventory</a></li>
+          <li><a href="login/login.html"><i class="fa-solid fa-right-to-bracket"></i> Admin login</a></li>
+          <li><a href="index.html"><i class="fa-solid fa-house"></i> Back to home</a></li>
+        </ul>
+      </aside>
+    </div>
+  </main>
+
+  <script src="contact.js"></script>
+</body>
+</html>

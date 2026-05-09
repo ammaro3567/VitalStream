@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vital Stream - Donor Registration</title>
+
+<link rel="stylesheet" href="style.css">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+/>
+
+</head>
+
+<body>
+
+<header>
+
+<div class="logo">
+    <div class="logo-icon">
+        <i class="fa-solid fa-droplet"></i>
+    </div>
+    Vital Stream
+</div>
+
+<div class="login">
+    Already a donor?
+    <button type="button" id="donorLoginBtn">Log In</button>
+</div>
+
+</header>
+
+
+<section class="container">
+
+<a class="back" href="../../index.html">← Back to Home</a>
+
+<h1>Donor Registration</h1>
+
+<p class="subtitle">
+Join the lifeline today. Your donation matters.
+</p>
+
+
+<div class="steps">
+
+<div class="active">1<br>Basic</div>
+<div>2<br>Health</div>
+<div>3<br>Confirm</div>
+
+</div>
+
+
+<div class="form-box">
+
+<h3>👤 Personal Information</h3>
+
+
+<input id="fullName" type="text" placeholder="Full Name">
+
+<input id="email" type="email" placeholder="Email Address">
+
+
+<div class="row">
+
+<input id="dob" type="date">
+
+<input id="phone" type="text" placeholder="Phone Number">
+
+</div>
+
+
+<h3>🩸 Blood Type</h3>
+
+
+<div class="blood-group">
+
+<button type="button" class="blood-btn">A+</button>
+<button type="button" class="blood-btn">A-</button>
+<button type="button" class="blood-btn">B+</button>
+<button type="button" class="blood-btn">B-</button>
+<button type="button" class="blood-btn">AB+</button>
+<button type="button" class="blood-btn">AB-</button>
+<button type="button" class="blood-btn">O+</button>
+<button type="button" class="blood-btn">O-</button>
+
+</div>
+
+<div class="location-row">
+  <button type="button" id="getLocationBtn" class="location-btn">Get My Location</button>
+  <span id="locationText">Location not set</span>
+</div>
+
+<input id="city" type="text" placeholder="City (optional)">
+
+<p id="statusMessage" class="status-message"></p>
+
+<button id="registerBtn" class="submit">
+
+REGISTER AS DONOR →
+
+</button>
+
+
+<p class="terms">
+
+By registering, you agree to our Terms of Service
+and Privacy Policy.
+
+</p>
+
+
+</div>
+
+
+<p class="secure">
+
+🔒 Your data is encrypted and secure.
+
+</p>
+
+
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="donate.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

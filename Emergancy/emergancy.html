@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency Request - Vital Stream</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+    >
+    <link rel="stylesheet" href="emargancy.css">
+</head>
+<body>
+
+<header class="navbar">
+    <div class="container nav-wrapper">
+        <a class="logo" href="../index.html">
+            <span class="logo-icon"><i class="fa-solid fa-droplet"></i></span>
+            Vital Stream
+        </a>
+        <nav class="nav-links">
+            <a href="../Donate/Donate/index.html">Donate</a>
+            <a href="emergancy.html" class="active">Request</a>
+            <a href="../Search/search/VS.html">Inventory</a>
+        </nav>
+        <div class="nav-actions">
+            <a class="btn btn-primary" href="../login/login.html">Admin login</a>
+        </div>
+    </div>
+</header>
+
+<div class="back-wrap">
+    <a class="back" href="../index.html">← Back to Home</a>
+</div>
+
+<div class="header">
+    <h1>Emergency Request</h1>
+    <p>Fill in details to alert nearby donors immediately.</p>
+</div>
+
+<div class="card">
+
+    <label class="title">URGENCY LEVEL</label>
+    <div class="urgency">
+        <button>Normal</button>
+        <button class="active">Urgent</button>
+        <button>Critical</button>
+    </div>
+
+    <div class="input-group">
+        <label>Patient Name</label>
+        <input type="text" placeholder="e.g. John Doe">
+    </div>
+
+    <div class="input-group">
+        <label>Hospital Location</label>
+        <input type="text" placeholder="Search hospital or clinic...">
+    </div>
+
+    <div class="row">
+        <div class="input-group">
+            <label>Blood Type</label>
+            <select>
+                <option>Select Type</option>
+                <option>A+</option>
+                <option>B+</option>
+                <option>O+</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>Units Needed</label>
+            <select>
+                <option>1 Unit</option>
+                <option>2 Units</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="input-group">
+        <label>Medical Notes (Optional)</label>
+        <textarea placeholder="Condition details..."></textarea>
+    </div>
+
+    <button class="submit-btn">BROADCAST REQUEST</button>
+
+</div>
+
+<div class="info-boxes">
+    <div class="box">
+        <h4>⚡ Speed Matters</h4>
+        <p>Average response time for urgent requests is under 15 minutes.</p>
+    </div>
+
+    <div class="box">
+        <h4>✔ Verified Donors</h4>
+        <p>Requests are sent only to pre-screened donors nearby.</p>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="emargancy.js"></script>
+</body>
+</html>

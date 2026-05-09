@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- ترميز اللغة -->
+  <meta charset="UTF-8" />
+
+  <!-- يخلي الموقع Responsive -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <title>Vital Stream</title>
+
+  <!-- Google Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- Font Awesome Icons -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+  />
+
+  <!-- ربط ملف CSS -->
+  <link rel="stylesheet" href="VS.css" >
+
+</head>
+
+<body>
+
+  <!-- NAVBAR -->
+
+  <header class="navbar">
+
+    <div class="container nav-wrapper">
+
+      <div class="logo">
+
+        <div class="logo-icon">
+          <i class="fa-solid fa-droplet"></i>
+        </div>
+
+        Vital Stream
+
+      </div>
+
+      <nav class="nav-links">
+        <a href="../../Donate/Donate/index.html">Donate</a>
+        <a href="../../Emergancy/emergancy.html">Request</a>
+        <a href="#" class="active">Inventory</a>
+      </nav>
+
+      <div class="nav-actions">
+
+        <a class="btn btn-primary" href="../../login/login.html">
+          Admin login
+        </a>
+
+      </div>
+
+    </div>
+
+  </header>
+
+  <!-- DASHBOARD -->
+
+  <section class="container dashboard">
+
+    <!-- SIDEBAR -->
+
+    <aside>
+
+      <div class="sidebar-card">
+
+        <div class="sidebar-header">
+
+          <h3>Filter Supply</h3>
+
+          <span class="reset" id="resetFilters">
+             Reset All
+          </span>
+
+        </div>
+
+        <div class="section-title">
+          Blood Type
+        </div>
+
+        <div class="blood-grid">
+
+          <button class="blood-btn active">A+</button>
+          <button class="blood-btn">A-</button>
+          <button class="blood-btn">B+</button>
+          <button class="blood-btn">B-</button>
+
+          <button class="blood-btn">AB+</button>
+          <button class="blood-btn">AB-</button>
+          <button class="blood-btn">O+</button>
+          <button class="blood-btn">O-</button>
+
+        </div>
+
+        <div class="distance-head">
+
+          <div class="section-title">
+            Distance
+          </div>
+
+          <div class="distance-badge">
+            Within <span id="distanceValue">15</span>km
+          </div>
+
+        </div>
+
+        <div class="range-wrap">
+
+          <input
+            type="range"
+            id="distanceRange"
+            min="1"
+            max="50"
+            value="15"
+          >
+
+          <div class="range-values">
+            <span>1km</span>
+            <span>50km</span>
+          </div>
+
+        </div>
+
+        <div class="toggle-box">
+
+          <div>
+
+            <h4>Emergency Only</h4>
+
+            <p>Show critical needs first</p>
+
+          </div>
+
+          <div class="toggle" id="emergencyToggle"></div>
+
+        </div>
+
+      </div>
+
+      <!-- DRIVE CARD -->
+
+      <div class="sidebar-card drive-card">
+
+        <div class="drive-top">
+
+          <i class="fa-solid fa-hand-holding-heart"></i>
+
+          HOST A DRIVE
+
+        </div>
+
+        <h2>Organize a Blood Drive?</h2>
+
+        <p>
+          Partner with us to bring the donation center to your community.
+        </p>
+
+        <button class="learn-btn">
+          Learn More
+        </button>
+
+      </div>
+
+    </aside>
+
+    <!-- MAIN -->
+
+    <main>
+
+      <h1 class="main-title">
+        Blood Supply Inventory
+      </h1>
+
+      <p class="subtitle">
+        Real-time availability across verified medical centers.
+      </p>
+
+      <!-- SEARCH -->
+
+      <div class="search-box">
+
+        <div class="search-input">
+
+          <i class="fa-solid fa-magnifying-glass"></i>
+
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Search by Hospital, City, or Zip Code..."
+          >
+
+        </div>
+
+        <button class="btn btn-primary search-btn">
+          Search
+        </button>
+
+      </div>
+
+      <!-- HEADER -->
+
+      <div class="inventory-header">
+
+        <p>
+          Found <span id="resultsCount">0 units</span> nearby
+        </p>
+
+        <div class="sort-wrapper">
+
+          <div class="sort-label">
+            Sort by:
+          </div>
+
+          <div class="sort-box">
+
+            <select class="sort-select" id="sortSelect">
+
+              <option value="closest">
+                Distance (Closest)
+              </option>
+
+              <option value="farthest">
+                Distance (Farthest)
+              </option>
+
+              <option value="critical">
+                Critical First
+              </option>
+
+            </select>
+
+            <i class="fa-solid fa-chevron-down"></i>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- GRID -->
+
+      <div class="cards-grid" id="hospitalGrid"></div>
+
+      <!-- PAGINATION -->
+
+      <div class="pagination" id="pagination">
+
+        <div class="page">
+          <i class="fa-solid fa-chevron-left"></i>
+        </div>
+
+        <div class="page active">1</div>
+
+        <div class="page">2</div>
+
+        <div class="page">3</div>
+
+        <div class="page">
+          <i class="fa-solid fa-chevron-right"></i>
+        </div>
+
+      </div>
+
+    </main>
+
+  </section>
+
+  <!-- FLOAT BUTTON -->
+
+  <button class="map-btn">
+
+    <i class="fa-solid fa-map"></i>
+
+    View on Map
+
+  </button>
+
+  <!-- ربط ملف JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="VS.js"></script>
+
+</body>
+</html>

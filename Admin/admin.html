@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Page</title>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <div class="Hero">
+        <div class="leftSideBar">
+            <div class="MainContent">
+            <i class="ph-fill ph-drop"></i>
+            <h1>Vital Stream</h1>
+            </div>
+            <div class="leftSideBarButtons">
+                <button class="sideBtn isActive" data-view="dashboardView"><i class="ph-fill ph-squares-four"></i>Dashboard</button>
+                <button class="sideBtn" data-view="inventoryView"><i class="ph-fill ph-package"></i>Inventory</button>
+                <button class="sideBtn" data-view="donorsView"><i class="ph-fill ph-users"></i>Donors</button>
+                <button class="sideBtn" data-view="requestsView"><i class="ph-fill ph-warning-circle"></i>Requests</button>
+            </div>
+        </div>
+        <div class="rightContent">
+            <div class="contentView dashboardView activeView">
+                <div class="overview">
+                    <div class="overviewHeader">
+                    <h2>Dashboard Overview</h2>
+                    <span>Welcome Back, Here's what's happening today!</span>
+                    </div>
+                    <div class="notificationCard">
+                           <div class="bell-wrapper">
+                               <i class="ph-fill ph-bell"></i>
+                               <span class="badge" id="notificationCount">0</span>
+                           </div>
+                           <button id="newRequestBtn"><i class="ph-thin ph-plus"></i>New Request</button>
+                    </div>
+                </div>
+                <div class="dashboardLayout">
+                    <div class="dashboardMain">
+                        <div class="dashboard">
+                            <div class="card">
+                                <i class="ph-thin ph-users-three"></i>
+                                <h3>Total Donors</h3>
+                                <p id="totalDonorsValue">0</p>
+                            </div>
+                            <div class="card">
+                                <i class="ph-fill ph-drop-simple"></i>
+                                <h3>Units Available</h3>
+                                <p id="totalUnitsValue">0</p>
+                            </div>
+                            <div class="card">
+                                <i class="ph-fill ph-clipboard-text"></i>
+                                <h3>Pending Requests</h3>
+                                <p id="pendingRequestsValue">0</p>
+                            </div>
+                            <div class="blood-stock-wrapper">
+                                <div class="blood-stock-container">
+                                    <div class="stock-header">
+                                        <div>
+                                            <h2>Blood Stock Levels</h2>
+                                            <p>Real-time inventory across all refrigerated units.</p>
+                                        </div>
+                                        <a href="#" class="view-report">View Full Report</a>
+                                    </div>
+                                    <div class="blood-levels-grid">
+                                        <div class="blood-level-row">
+                                            <div class="label-group">
+                                                <span class="dot red"></span>
+                                                <span class="blood-type">Type A</span>
+                                            </div>
+                                            <div class="progress-container">
+                                                <div class="progress-bar" data-blood-type="A" style="width: 85%;"></div>
+                                            </div>
+                                            <div class="status-group">
+                                                <span class="percentage" data-blood-type="A">85%</span>
+                                                <span class="status safe" data-blood-type="A">(Safe)</span>
+                                            </div>
+                                        </div>
+                                        <div class="blood-level-row">
+                                            <div class="label-group">
+                                                <span class="dot red"></span>
+                                                <span class="blood-type">Type B</span>
+                                            </div>
+                                            <div class="progress-container">
+                                                <div class="progress-bar" data-blood-type="B" style="width: 62%;"></div>
+                                            </div>
+                                            <div class="status-group">
+                                                <span class="percentage" data-blood-type="B">62%</span>
+                                                <span class="status moderate" data-blood-type="B">(Moderate)</span>
+                                            </div>
+                                        </div>
+                                        <div class="blood-level-row">
+                                            <div class="label-group">
+                                                <span class="dot yellow"></span>
+                                                <span class="blood-type">Type O</span>
+                                            </div>
+                                            <div class="progress-container">
+                                                <div class="progress-bar" data-blood-type="O" style="width: 24%;"></div>
+                                            </div>
+                                            <div class="status-group">
+                                                <span class="percentage" data-blood-type="O">24%</span>
+                                                <span class="status low" data-blood-type="O">(Low Stock)</span>
+                                            </div>
+                                        </div>
+                                        <div class="blood-level-row">
+                                            <div class="label-group">
+                                                <span class="dot red"></span>
+                                                <span class="blood-type">Type AB</span>
+                                            </div>
+                                            <div class="progress-container">
+                                                <div class="progress-bar" data-blood-type="AB" style="width: 45%;"></div>
+                                            </div>
+                                            <div class="status-group">
+                                                <span class="percentage" data-blood-type="AB">45%</span>
+                                                <span class="status safe" data-blood-type="AB">(Safe)</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="donorTable">
+                                <div class="table-header">
+                                    <h2>Recent Donor Registrations</h2>
+                                </div>
+                                <table class="donor-table">
+                                    <thead>
+                                        <tr>
+                                            <th>DONOR NAME</th>
+                                            <th>BLOOD TYPE</th>
+                                            <th>DATE</th>
+                                            <th>STATUS</th>
+                                            <th>ACTIONS</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="dashboardDonorBody">
+                                        <tr>
+                                            <td>
+                                                <div class="donor-info">
+                                                    <span>Elena S.</span>
+                                                </div>
+                                            </td>
+                                            <td><span class="blood-badge">A+</span></td>
+                                            <td>Oct 24,<br>2023</td>
+                                            <td><span class="status-badge pending"><span class="status-dot"></span>Pending</span></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="donor-info">
+                                                    <span>Michael J.</span>
+                                                </div>
+                                            </td>
+                                            <td><span class="blood-badge">O-</span></td>
+                                            <td>Oct 23,<br>2023</td>
+                                            <td><span class="status-badge verified"><span class="status-dot"></span>Verified</span></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="donor-info">
+                                                    <span>Sarah L.</span>
+                                                </div>
+                                            </td>
+                                            <td><span class="blood-badge">B+</span></td>
+                                            <td>Oct 23,<br>2023</td>
+                                            <td><span class="status-badge pending"><span class="status-dot"></span>Pending</span></td>
+                                            <td></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="emergencyFeed">
+                        <div class="feedHeader">
+                            <h2><span class="feedDot"></span>Emergency Feed</h2>
+                            <button>Clear All</button>
+                        </div>
+                        <div class="feedList" id="emergencyFeedList">
+                            <div class="feedItem critical">
+                                <div class="feedTop">
+                                    <span class="priorityTag">CRITICAL</span>
+                                    <span class="feedTime">2m ago</span>
+                                </div>
+                                <h4>O- Negative Needed</h4>
+                                <p>City Hospital (ICU) • 3 Units</p>
+                                <div class="feedActions">
+                                    <button class="feedBtn secondary">Details</button>
+                                    <button class="feedBtn danger">Dispatch</button>
+                                </div>
+                            </div>
+
+                            <div class="feedItem high">
+                                <div class="feedTop">
+                                    <span class="priorityTag">HIGH PRIORITY</span>
+                                    <span class="feedTime">15m ago</span>
+                                </div>
+                                <h4>A+ Platelets Request</h4>
+                                <p>St. Mary's Pediatric • 2 Units</p>
+                                <div class="feedActions">
+                                    <button class="feedBtn secondary wide">View Request</button>
+                                </div>
+                            </div>
+
+                            <div class="feedItem routine">
+                                <div class="feedTop">
+                                    <span class="priorityTag">ROUTINE</span>
+                                    <span class="feedTime">45m ago</span>
+                                </div>
+                                <h4>Stock Replenishment</h4>
+                                <p>North Wing Storage</p>
+                            </div>
+
+                            <div class="feedItem routine">
+                                <div class="feedTop">
+                                    <span class="priorityTag">ROUTINE</span>
+                                    <span class="feedTime">1h ago</span>
+                                </div>
+                                <h4>B- Plasma Transfer</h4>
+                                <p>Logistics Hub -> ER</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="contentView inventoryView">
+                <div class="singleViewCard sectionCard">
+                    <div class="sectionHeader">
+                        <div>
+                            <h2>Inventory Management</h2>
+                            <p>Track unit levels, update status, and monitor low stock alerts.</p>
+                        </div>
+                        <button class="sectionBtn" id="addUnitBatchBtn"><i class="ph-fill ph-plus"></i>Add Unit Batch</button>
+                    </div>
+
+                    <div class="miniStatGrid">
+                        <div class="miniStat">
+                            <span>Total Units</span>
+                            <strong id="inventoryTotalUnits">0</strong>
+                        </div>
+                        <div class="miniStat">
+                            <span>Critical Types</span>
+                            <strong id="inventoryCriticalTypes">0</strong>
+                        </div>
+                        <div class="miniStat">
+                            <span>Expiring Soon</span>
+                            <strong id="inventoryExpiringSoon">0</strong>
+                        </div>
+                    </div>
+
+                    <div class="tableWrap">
+                        <table class="mainTable">
+                            <thead>
+                                <tr>
+                                    <th>BLOOD TYPE</th>
+                                    <th>AVAILABLE UNITS</th>
+                                    <th>MINIMUM TARGET</th>
+                                    <th>LAST UPDATE</th>
+                                    <th>STATUS</th>
+                                    <th>ACTIONS</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventoryTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="contentView donorsView">
+                <div class="singleViewCard sectionCard">
+                    <div class="sectionHeader">
+                        <div>
+                            <h2>Donor Directory</h2>
+                            <p>Manage donor records, eligibility, and verification status.</p>
+                        </div>
+                        <button class="sectionBtn" id="addDonorBtn"><i class="ph-fill ph-user-plus"></i>Add Donor</button>
+                    </div>
+
+                    <div class="tableWrap">
+                        <table class="mainTable">
+                            <thead>
+                                <tr>
+                                    <th>DONOR NAME</th>
+                                    <th>BLOOD TYPE</th>
+                                    <th>PHONE</th>
+                                    <th>CITY</th>
+                                    <th>LAST DONATION</th>
+                                    <th>STATUS</th>
+                                    <th>ACTIONS</th>
+                                </tr>
+                            </thead>
+                            <tbody id="donorsTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="contentView requestsView">
+                <div class="singleViewCard sectionCard">
+                    <div class="sectionHeader">
+                        <div>
+                            <h2>Emergency Requests Queue</h2>
+                            <p>Incoming urgent requests appear here for dispatch and follow-up.</p>
+                        </div>
+                        <button class="sectionBtn" id="refreshRequestsBtn"><i class="ph-fill ph-arrows-clockwise"></i>Refresh Queue</button>
+                    </div>
+
+                    <div class="requestList" id="requestQueueList"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="admin.js"></script>
+</body>
+</html>
