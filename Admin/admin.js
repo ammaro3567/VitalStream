@@ -40,7 +40,11 @@ const els = {
 
 const state = {
    unseenNotificationTotal: 0,
-   activeView: "dashboardView"
+   activeView: "dashboardView",
+   /** IDs we have already counted (avoids double-count from realtime + poll). */
+   knownEmergencyRequestIds: new Set(),
+   emergencyPollTimer: null,
+   didInitialPendingBell: false,
 };
 
 function toNumber(value) {
@@ -134,6 +138,83 @@ function updateNotificationBadge() {
 function bumpUnseenEmergencyNotification() {
    state.unseenNotificationTotal += 1;
    updateNotificationBadge();
+}
+
+function rememberEmergencyRequestRows(rows) {
+   (rows || []).forEach((row) => {
+      if (row && row.id != null) state.knownEmergencyRequestIds.add(String(row.id));
+   });
+}
+
+function getEmergencyRecordFromRealtimePayload(payload) {
+   if (!payload) return null;
+   if (payload.new && typeof payload.new === "object") return payload.new;
+   if (payload.record && typeof payload.record === "object") return payload.record;
+   const inner = payload.data;
+   if (inner && typeof inner === "object") {
+      if (inner.new) return inner.new;
+      if (inner.record) return inner.record;
+   }
+   return null;
+}
+
+function getRealtimeEventType(payload) {
+   if (!payload) return "";
+   const inner = payload.data && typeof payload.data === "object" ? payload.data : null;
+   return String(
+      payload.eventType ||
+      payload.event_type ||
+      inner?.eventType ||
+      inner?.event_type ||
+      inner?.type ||
+      ""
+   ).toUpperCase();
+}
+
+function isRealtimeInsertPayload(payload, row) {
+   const ev = getRealtimeEventType(payload);
+   if (ev === "INSERT") return true;
+   if (ev === "UPDATE" || ev === "DELETE") return false;
+   const oldRec = payload.old;
+   if (row && row.id != null && (oldRec === undefined || oldRec === null)) return true;
+   return false;
+}
+
+async function syncKnownEmergencyIdsFromServer() {
+   if (!supabaseClient) return;
+   const res = await supabaseClient
+      .from("emergency_requests")
+      .select("id")
+      .order("created_at", {
+         ascending: false,
+      })
+      .limit(120);
+   if (res.error || !Array.isArray(res.data)) return;
+   res.data.forEach((r) => {
+      if (r && r.id != null) state.knownEmergencyRequestIds.add(String(r.id));
+   });
+}
+
+async function pollNewEmergencyRequests() {
+   if (!supabaseClient) return;
+   if (typeof document.visibilityState !== "undefined" && document.visibilityState === "hidden") return;
+   const res = await supabaseClient
+      .from("emergency_requests")
+      .select("id,hospital_name,blood_type,urgency_level,status,created_at")
+      .order("created_at", {
+         ascending: false,
+      })
+      .limit(25);
+   if (res.error || !Array.isArray(res.data)) return;
+   const fresh = res.data.filter((r) => r && r.id != null && !state.knownEmergencyRequestIds.has(String(r.id)));
+   if (!fresh.length) return;
+   fresh.forEach((row) => {
+      state.knownEmergencyRequestIds.add(String(row.id));
+      bumpUnseenEmergencyNotification();
+      appendEmergencyFeedItem(row);
+   });
+   loadDashboardCounts();
+   if (state.activeView === "requestsView") loadRequestsQueue();
 }
 
 function renderStockPercents(map) {
@@ -262,6 +343,11 @@ async function loadDashboardCounts() {
    if (els.totalDonorsValue) els.totalDonorsValue.textContent = donors.toLocaleString();
    if (els.totalUnitsValue) els.totalUnitsValue.textContent = Math.round(units).toLocaleString();
    if (els.pendingRequestsValue) els.pendingRequestsValue.textContent = String(pending);
+   if (!state.didInitialPendingBell) {
+      state.didInitialPendingBell = true;
+      state.unseenNotificationTotal = pending;
+      updateNotificationBadge();
+   }
 }
 
 async function loadBloodStockLevels() {
@@ -320,6 +406,7 @@ async function loadEmergencyFeed() {
       return;
    }
    els.emergencyFeedList.innerHTML = rows.map((row) => buildEmergencyFeedItemHtml(row)).join("");
+   rememberEmergencyRequestRows(rows);
 }
 
 async function loadInventorySection() {
@@ -359,6 +446,13 @@ async function loadDashboardSection() {
 
 function appendEmergencyFeedItem(item) {
    if (!els.emergencyFeedList) return;
+   const firstH4 = els.emergencyFeedList.querySelector("h4");
+   if (firstH4) {
+      const t = firstH4.textContent || "";
+      if (t.includes("Feed cleared") || t.includes("No emergency requests yet")) {
+         els.emergencyFeedList.innerHTML = "";
+      }
+   }
    els.emergencyFeedList.insertAdjacentHTML("afterbegin", buildEmergencyFeedItemHtml(item));
    const items = els.emergencyFeedList.querySelectorAll(".feedItem");
    if (items.length > 8) items[items.length - 1].remove();
@@ -492,13 +586,16 @@ function setupButtons() {
    if (els.newRequestBtn) els.newRequestBtn.addEventListener("click", () => {
       window.location.href = "../Emergancy/emergancy.html";
    });
-   if (els.clearFeedBtn) els.clearFeedBtn.addEventListener("click", () => {
-      state.unseenNotificationTotal = 0;
-      updateNotificationBadge();
-      if (els.emergencyFeedList) {
-         els.emergencyFeedList.innerHTML = '<div class="feedItem routine"><h4>Feed cleared</h4><p>New emergency requests will appear here.</p></div>';
-      }
-   });
+   if (els.clearFeedBtn)
+      els.clearFeedBtn.addEventListener("click", async () => {
+         state.unseenNotificationTotal = 0;
+         updateNotificationBadge();
+         if (els.emergencyFeedList) {
+            els.emergencyFeedList.innerHTML =
+               '<div class="feedItem routine"><h4>Feed cleared</h4><p>New emergency requests will appear here.</p></div>';
+         }
+         await syncKnownEmergencyIdsFromServer();
+      });
    if (els.refreshRequestsBtn) els.refreshRequestsBtn.addEventListener("click", () => {
       loadRequestsQueue();
    });
@@ -543,14 +640,18 @@ function setupRealtimeListeners() {
          schema: "public",
          table: "emergency_requests",
       }, (payload) => {
-         const ev = String(payload.eventType || payload.event_type || "").toUpperCase();
-         if (ev === "INSERT") {
-            bumpUnseenEmergencyNotification();
-            appendEmergencyFeedItem(payload.new || {});
-            if (els.pendingRequestsValue) {
-               els.pendingRequestsValue.textContent = String(
-                  toNumber(els.pendingRequestsValue.textContent) + 1
-               );
+         const row = getEmergencyRecordFromRealtimePayload(payload);
+         if (isRealtimeInsertPayload(payload, row) && row && row.id != null) {
+            const idStr = String(row.id);
+            if (!state.knownEmergencyRequestIds.has(idStr)) {
+               state.knownEmergencyRequestIds.add(idStr);
+               bumpUnseenEmergencyNotification();
+               appendEmergencyFeedItem(row);
+               if (els.pendingRequestsValue) {
+                  els.pendingRequestsValue.textContent = String(
+                     toNumber(els.pendingRequestsValue.textContent) + 1
+                  );
+               }
             }
          }
          if (state.activeView === "requestsView") loadRequestsQueue();
@@ -573,7 +674,9 @@ function setupRealtimeListeners() {
          loadBloodStockLevels();
          if (state.activeView === "inventoryView") loadInventorySection();
       })
-      .subscribe();
+      .subscribe((status) => {
+         if (status === "SUBSCRIBED") pollNewEmergencyRequests();
+      });
 }
 
 async function initAdminPage() {
@@ -590,6 +693,10 @@ async function initAdminPage() {
    await loadDonorsSection();
    await loadRequestsQueue();
    setupRealtimeListeners();
+   state.emergencyPollTimer = setInterval(pollNewEmergencyRequests, 8000);
+   document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") pollNewEmergencyRequests();
+   });
 }
 
 initAdminPage();
