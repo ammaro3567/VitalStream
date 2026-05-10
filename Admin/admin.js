@@ -127,7 +127,13 @@ function getRequestPriority(urgencyLevel) {
 }
 
 function updateNotificationBadge() {
-   if (els.notificationCount) els.notificationCount.textContent = String(state.unseenNotificationTotal);
+   const el = document.getElementById("notificationCount") || els.notificationCount;
+   if (el) el.textContent = String(state.unseenNotificationTotal);
+}
+
+function bumpUnseenEmergencyNotification() {
+   state.unseenNotificationTotal += 1;
+   updateNotificationBadge();
 }
 
 function renderStockPercents(map) {
@@ -533,14 +539,20 @@ function setupRealtimeListeners() {
    supabaseClient
       .channel("admin-dashboard-realtime")
       .on("postgres_changes", {
-         event: "INSERT",
+         event: "*",
          schema: "public",
-         table: "emergency_requests"
+         table: "emergency_requests",
       }, (payload) => {
-         state.unseenNotificationTotal += 1;
-         updateNotificationBadge();
-         appendEmergencyFeedItem(payload.new || {});
-         if (els.pendingRequestsValue) els.pendingRequestsValue.textContent = String(toNumber(els.pendingRequestsValue.textContent) + 1);
+         const ev = String(payload.eventType || payload.event_type || "").toUpperCase();
+         if (ev === "INSERT") {
+            bumpUnseenEmergencyNotification();
+            appendEmergencyFeedItem(payload.new || {});
+            if (els.pendingRequestsValue) {
+               els.pendingRequestsValue.textContent = String(
+                  toNumber(els.pendingRequestsValue.textContent) + 1
+               );
+            }
+         }
          if (state.activeView === "requestsView") loadRequestsQueue();
       })
       .on("postgres_changes", {
@@ -560,13 +572,6 @@ function setupRealtimeListeners() {
          loadDashboardCounts();
          loadBloodStockLevels();
          if (state.activeView === "inventoryView") loadInventorySection();
-      })
-      .on("postgres_changes", {
-         event: "*",
-         schema: "public",
-         table: "emergency_requests"
-      }, () => {
-         if (state.activeView === "requestsView") loadRequestsQueue();
       })
       .subscribe();
 }
