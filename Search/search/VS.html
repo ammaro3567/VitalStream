@@ -2,15 +2,12 @@
 <html lang="en">
 <head>
 
-  <!-- ترميز اللغة -->
   <meta charset="UTF-8" />
 
-  <!-- يخلي الموقع Responsive -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
   <title>Vital Stream</title>
 
-  <!-- Google Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
@@ -19,20 +16,16 @@
     rel="stylesheet"
   />
 
-  <!-- Font Awesome Icons -->
   <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
   />
 
-  <!-- ربط ملف CSS -->
   <link rel="stylesheet" href="VS.css" >
 
 </head>
 
 <body>
-
-  <!-- NAVBAR -->
 
   <header class="navbar">
 
@@ -66,11 +59,7 @@
 
   </header>
 
-  <!-- DASHBOARD -->
-
   <section class="container dashboard">
-
-    <!-- SIDEBAR -->
 
     <aside>
 
@@ -149,8 +138,6 @@
 
       </div>
 
-      <!-- DRIVE CARD -->
-
       <div class="sidebar-card drive-card">
 
         <div class="drive-top">
@@ -175,8 +162,6 @@
 
     </aside>
 
-    <!-- MAIN -->
-
     <main>
 
       <h1 class="main-title">
@@ -186,8 +171,6 @@
       <p class="subtitle">
         Real-time availability across verified medical centers.
       </p>
-
-      <!-- SEARCH -->
 
       <div class="search-box">
 
@@ -208,8 +191,6 @@
         </button>
 
       </div>
-
-      <!-- HEADER -->
 
       <div class="inventory-header">
 
@@ -249,11 +230,7 @@
 
       </div>
 
-      <!-- GRID -->
-
       <div class="cards-grid" id="hospitalGrid"></div>
-
-      <!-- PAGINATION -->
 
       <div class="pagination" id="pagination">
 
@@ -277,8 +254,6 @@
 
   </section>
 
-  <!-- FLOAT BUTTON -->
-
   <button class="map-btn">
 
     <i class="fa-solid fa-map"></i>
@@ -287,8 +262,7 @@
 
   </button>
 
-  <!-- ربط ملف JS -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../../demo-store.js"></script>
   <script src="VS.js"></script>
 
 </body>

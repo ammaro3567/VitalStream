@@ -1,35 +1,15 @@
-// =============================================
-// SUPABASE CONFIGURATION
-// =============================================
-const SUPABASE_URL = "https://ofjtwbiorpylsegipgzo.supabase.co";
-const SUPABASE_ANON_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9manR3YmlvcnB5bHNlZ2lwZ3pvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNDk3NjMsImV4cCI6MjA5MDcyNTc2M30.c0u43yD2vJdYdk7oeqJDZXWUgzDOI-TIrAHd1HTRM10";
-
-const supabaseClient =
-  typeof supabase !== "undefined"
-    ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-    : null;
-
-// =============================================
-// DOM ELEMENTS
-// =============================================
 const emergencyCard = document.querySelector(".card");
 const urgencyButtons = document.querySelectorAll(".urgency button");
 const submitBtn = document.querySelector(".submit-btn");
 
-const patientNameInput = document.querySelector(
-  '.input-group input[placeholder="e.g. John Doe"]'
-);
-const hospitalInput = document.querySelector(
-  '.input-group input[placeholder="Search hospital or clinic..."]'
-);
+const patientNameInput = document.querySelector('.input-group input[placeholder="e.g. John Doe"]');
+const hospitalInput = document.querySelector('.input-group input[placeholder="Search hospital or clinic..."]');
 const bloodTypeSelect = document.querySelectorAll(".input-group select")[0];
 const unitsSelect = document.querySelectorAll(".input-group select")[1];
 const notesTextarea = document.querySelector("textarea");
 
 let selectedUrgency = "Urgent";
 let statusMessageEl = null;
-const PENDING_REQUESTS_KEY = "vital_stream_pending_emergencies";
 const EMERGENCY_PREFILL_KEY = "vital_stream_emergency_prefill";
 
 function ensureStatusMessage() {
@@ -54,69 +34,8 @@ function clearStatus() {
   el.classList.remove("is-success", "is-error", "is-info");
 }
 
-function loadPendingRequests() {
-  try {
-    return JSON.parse(localStorage.getItem(PENDING_REQUESTS_KEY) || "[]");
-  } catch (error) {
-    return [];
-  }
-}
-
-function savePendingRequests(requests) {
-  localStorage.setItem(PENDING_REQUESTS_KEY, JSON.stringify(requests));
-}
-
-function addPendingRequest(payload) {
-  const pending = loadPendingRequests();
-  pending.push({
-    payload,
-    savedAt: new Date().toISOString(),
-  });
-  savePendingRequests(pending);
-}
-
-async function insertRequest(payload) {
-  const { error } = await supabaseClient.from("emergency_requests").insert([payload]);
-  if (error) throw error;
-}
-
-async function syncPendingRequests() {
-  if (!supabaseClient) return;
-
-  const pending = loadPendingRequests();
-  if (pending.length === 0) return;
-
-  let syncedCount = 0;
-  const stillPending = [];
-
-  for (const item of pending) {
-    try {
-      await insertRequest(item.payload);
-      syncedCount += 1;
-    } catch (error) {
-      stillPending.push(item);
-    }
-  }
-
-  savePendingRequests(stillPending);
-
-  if (syncedCount > 0) {
-    showStatus(
-      `${syncedCount} pending request(s) synced successfully.`,
-      "success"
-    );
-  }
-}
-
-// =============================================
-// URGENCY TOGGLE UI
-// =============================================
 function updateUrgencyStyles(level) {
-  emergencyCard.classList.remove(
-    "urgency-normal",
-    "urgency-urgent",
-    "urgency-critical"
-  );
+  emergencyCard.classList.remove("urgency-normal", "urgency-urgent", "urgency-critical");
 
   if (level === "Normal") {
     emergencyCard.classList.add("urgency-normal");
@@ -130,9 +49,7 @@ function updateUrgencyStyles(level) {
 urgencyButtons.forEach((button) => {
   button.addEventListener("click", () => {
     urgencyButtons.forEach((btn) => btn.classList.remove("active"));
-    urgencyButtons.forEach((btn) =>
-      btn.classList.remove("active-normal", "active-urgent", "active-critical")
-    );
+    urgencyButtons.forEach((btn) => btn.classList.remove("active-normal", "active-urgent", "active-critical"));
     button.classList.add("active");
     selectedUrgency = button.textContent.trim();
     button.classList.add(`active-${selectedUrgency.toLowerCase()}`);
@@ -142,9 +59,6 @@ urgencyButtons.forEach((button) => {
 
 updateUrgencyStyles(selectedUrgency);
 
-// =============================================
-// VALIDATION
-// =============================================
 function validateEmergencyForm() {
   const patientName = patientNameInput.value.trim();
   const hospitalName = hospitalInput.value.trim();
@@ -171,19 +85,13 @@ function validateEmergencyForm() {
   return true;
 }
 
-// =============================================
-// SUBMIT TO SUPABASE
-// =============================================
-async function submitEmergencyRequest() {
+function submitEmergencyRequest() {
   clearStatus();
 
   if (!validateEmergencyForm()) return;
 
-  if (!supabaseClient) {
-    showStatus(
-      "Supabase library is not loaded. Add Supabase script before emargancy.js.",
-      "error"
-    );
+  if (typeof VitalStreamDemo === "undefined") {
+    showStatus("Demo data module missing.", "error");
     return;
   }
 
@@ -195,10 +103,9 @@ async function submitEmergencyRequest() {
     hospital_name: hospitalInput.value.trim(),
     blood_type: bloodTypeSelect.value,
     urgency_level: selectedUrgency,
-    status: "Pending",
+    status: "pending",
   };
 
-  // Keep beginner-friendly: store extra details in notes text.
   const notes = notesTextarea.value.trim();
   const patientName = patientNameInput.value.trim();
   const unitsNeeded = unitsSelect.value.trim();
@@ -209,33 +116,22 @@ async function submitEmergencyRequest() {
   }
 
   try {
-    await insertRequest(payload);
+    const db = VitalStreamDemo.load();
+    const id = VitalStreamDemo.nextId(db, "emergency_requests");
+    db.emergency_requests.push({
+      id,
+      hospital_name: payload.hospital_name,
+      blood_type: payload.blood_type,
+      urgency_level: payload.urgency_level,
+      status: payload.status,
+      created_at: new Date().toISOString(),
+    });
+    VitalStreamDemo.save(db);
 
-    showStatus("Emergency request broadcasted successfully.", "success");
+    showStatus("Emergency request saved (demo). Open admin dashboard to see it.", "success");
     clearForm();
   } catch (error) {
-    console.error("Emergency request failed:", error);
-    const rawMessage = String(error?.message || "");
-    let userMessage = "Failed to broadcast request. Please try again.";
-
-    if (
-      rawMessage.includes("Failed to fetch") ||
-      rawMessage.includes("ERR_NAME_NOT_RESOLVED") ||
-      rawMessage.includes("NetworkError")
-    ) {
-      addPendingRequest(payload);
-      userMessage =
-        "Network error: request saved locally and will sync when connection returns.";
-    } else if (rawMessage.toLowerCase().includes("permission")) {
-      userMessage =
-        "Permission error: check Supabase RLS policy for emergency_requests.";
-    } else if (rawMessage.toLowerCase().includes("invalid")) {
-      userMessage = "Invalid request data. Please review input values.";
-    } else if (rawMessage) {
-      userMessage = `Failed to broadcast request: ${rawMessage}`;
-    }
-
-    showStatus(userMessage, "error");
+    showStatus("Could not save request.", "error");
   } finally {
     submitBtn.disabled = false;
     submitBtn.textContent = "BROADCAST REQUEST";
@@ -297,7 +193,6 @@ function applyPrefillFromSearch() {
       setUrgencyLevel(prefill.urgency_level);
     }
   } catch (error) {
-    console.warn("Could not apply emergency prefill:", error);
   } finally {
     localStorage.removeItem(EMERGENCY_PREFILL_KEY);
   }
@@ -306,5 +201,4 @@ function applyPrefillFromSearch() {
 submitBtn.addEventListener("click", submitEmergencyRequest);
 
 ensureStatusMessage();
-syncPendingRequests();
 applyPrefillFromSearch();

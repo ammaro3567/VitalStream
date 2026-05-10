@@ -1,24 +1,32 @@
 # VitalStream
 
-A static blood-bank / emergency-routing demo: vanilla HTML, CSS, and JavaScript with [Supabase](https://supabase.com/) for data and admin auth.
+Static blood-bank demo: HTML, CSS, and JavaScript only. Data is **fake** and stored in the browser with `demo-store.js` (localStorage). There is no server database.
 
-## Project layout
+## Layout
 
-- `index.html` — home page
-- `style.css`, `contact.html`, `contact.js` — shared styles and contact page
-- `assets/` — images (e.g. hero)
-- `Admin/` — admin dashboard (`admin.html`, `admin.css`, `admin.js`)
-- `Donate/`, `Emergancy/`, `login/`, `Search/` — feature pages
+- `demo-store.js` — seed data and `localStorage` read/write (`VitalStreamDemo` API)
+- `index.html`, `style.css`, `contact.html`, `contact.js` — home and contact
+- `assets/` — images
+- `Admin/` — admin dashboard
+- `Donate/`, `Emergancy/`, `login/`, `Search/` — other pages
 
 ## Local preview
-
-Serve the repo root over HTTP (avoid opening `file://` URLs for Supabase):
 
 ```bash
 python -m http.server 5500
 ```
 
-Then open `http://127.0.0.1:5500/`.
+Open `http://127.0.0.1:5500/`.
+
+## Reset demo data
+
+In the browser console:
+
+```js
+VitalStreamDemo.reset()
+```
+
+Or clear site data for the origin.
 
 ## Clone
 
@@ -26,7 +34,3 @@ Then open `http://127.0.0.1:5500/`.
 git clone https://github.com/ammaro3567/VitalStream.git
 cd VitalStream
 ```
-
-## Configuration
-
-Supabase URL and anon keys live in the relevant `.js` files (donate, emergency, login, admin, search). Rotate keys and enable RLS appropriately before production.

@@ -1,12 +1,3 @@
-const SUPABASE_URL = "https://ofjtwbiorpylsegipgzo.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9manR3YmlvcnB5bHNlZ2lwZ3pvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNDk3NjMsImV4cCI6MjA5MDcyNTc2M30.c0u43yD2vJdYdk7oeqJDZXWUgzDOI-TIrAHd1HTRM10";
-
-const fallbackHospitalData = [
-  { blood: "A+", hospital: "City Hospital", distance: 2.4, units: 20, status: "Available", updated: "Updated recently" },
-  { blood: "O-", hospital: "North Emergency Hospital", distance: 4.1, units: 2, status: "Critical", updated: "Updated recently" },
-];
-
 const hospitalGrid = document.getElementById("hospitalGrid");
 const searchInput = document.getElementById("searchInput");
 const emergencyToggle = document.getElementById("emergencyToggle");
@@ -28,17 +19,6 @@ let selectedBlood = null;
 let selectedDistance = Number(range.value);
 let hospitalData = [];
 let latestFilteredData = [];
-
-const supabaseClient =
-  typeof supabase !== "undefined"
-    ? supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-        auth: {
-          persistSession: false,
-          autoRefreshToken: false,
-          detectSessionInUrl: false,
-        },
-      })
-    : null;
 
 function normalizeStatus(status) {
   const value = String(status || "").toLowerCase();
@@ -88,7 +68,7 @@ function renderHospitals(data) {
           <div class="hospital-info">
             <div>
               <h3>No inventory found</h3>
-              <p>Try changing filters, distance, or check Supabase connection.</p>
+              <p>Try changing filters or distance.</p>
             </div>
           </div>
         </div>
@@ -206,8 +186,9 @@ function filterHospitals() {
   filtered = filtered.filter((item) => Number(item.distance) <= selectedDistance);
 
   if (searchValue) {
-    filtered = filtered.filter((item) =>
-      item.hospital.toLowerCase().includes(searchValue) || item.blood.toLowerCase().includes(searchValue)
+    filtered = filtered.filter(
+      (item) =>
+        item.hospital.toLowerCase().includes(searchValue) || item.blood.toLowerCase().includes(searchValue)
     );
   }
 
@@ -254,9 +235,7 @@ function openMapForNearestResult() {
         );
         return;
       }
-    } catch (error) {
-      // Ignore parse errors and fallback to destination search only.
-    }
+    } catch (error) {}
   }
 
   window.open(
@@ -265,57 +244,33 @@ function openMapForNearestResult() {
   );
 }
 
-async function loadInventoryFromSupabase() {
-  // Running from file:// causes browser security limitations and inconsistent network behavior.
-  if (window.location.protocol === "file:") {
-    console.warn("Open this page via http://localhost, not file://");
-    hospitalData = fallbackHospitalData;
+function loadInventoryFromDemo() {
+  if (typeof VitalStreamDemo === "undefined") {
+    hospitalData = [];
     filterHospitals();
     return;
   }
-
-  if (!supabaseClient) {
-    hospitalData = fallbackHospitalData;
-    filterHospitals();
-    return;
+  const db = VitalStreamDemo.load();
+  hospitalData = (db.inventory_units || []).map((item) => ({
+    blood: item.blood_type || "N/A",
+    hospital: item.location || "Unknown Center",
+    distance: Number(item.distance_km || 0),
+    units: Number(item.units || 0),
+    status: normalizeStatus(item.status),
+    updated: formatUpdatedLabel(item.updated_at),
+  }));
+  if (hospitalData.length === 0) {
+    hospitalData = [
+      {
+        blood: "A+",
+        hospital: "Demo Hospital",
+        distance: 3,
+        units: 12,
+        status: "Available",
+        updated: "Updated just now",
+      },
+    ];
   }
-
-  try {
-    const { data, error } = await supabaseClient
-      .from("inventory_units")
-      .select("blood_type, units, status, location, distance_km, updated_at")
-      .order("updated_at", { ascending: false });
-
-    if (error) throw error;
-
-    hospitalData = (data || []).map((item) => ({
-      blood: item.blood_type || "N/A",
-      hospital: item.location || "Unknown Center",
-      distance: Number(item.distance_km || 0),
-      units: Number(item.units || 0),
-      status: normalizeStatus(item.status),
-      updated: formatUpdatedLabel(item.updated_at),
-    }));
-
-    if (hospitalData.length === 0) {
-      hospitalData = fallbackHospitalData;
-    }
-  } catch (error) {
-    console.error("Failed to load inventory from Supabase:", error);
-
-    // Keep UX stable when DNS/project/network fails.
-    const errorText = String(error?.message || "");
-    if (
-      errorText.includes("Failed to fetch") ||
-      errorText.includes("ERR_NAME_NOT_RESOLVED") ||
-      errorText.includes("NetworkError")
-    ) {
-      resultsCount.textContent = "Offline mode";
-    }
-
-    hospitalData = fallbackHospitalData;
-  }
-
   filterHospitals();
 }
 
@@ -396,4 +351,6 @@ if (hospitalGrid) {
 }
 
 updateRangeTrack();
-loadInventoryFromSupabase();
+const preSelectedBlood = document.querySelector(".blood-btn.active");
+if (preSelectedBlood) selectedBlood = preSelectedBlood.textContent.trim();
+loadInventoryFromDemo();

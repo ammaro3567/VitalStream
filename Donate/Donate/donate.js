@@ -1,18 +1,3 @@
-const SUPABASE_URL = "https://ofjtwbiorpylsegipgzo.supabase.co";
-const SUPABASE_ANON_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9manR3YmlvcnB5bHNlZ2lwZ3pvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNDk3NjMsImV4cCI6MjA5MDcyNTc2M30.c0u43yD2vJdYdk7oeqJDZXWUgzDOI-TIrAHd1HTRM10";
-
-const supabaseClient =
-  typeof supabase !== "undefined"
-    ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-        auth: {
-          persistSession: false,
-          autoRefreshToken: false,
-          detectSessionInUrl: false,
-        },
-      })
-    : null;
-
 const fullNameInput = document.getElementById("fullName");
 const emailInput = document.getElementById("email");
 const dobInput = document.getElementById("dob");
@@ -86,11 +71,10 @@ function validateForm() {
   return true;
 }
 
-async function registerDonor() {
+function registerDonor() {
   if (!validateForm()) return;
-
-  if (!supabaseClient) {
-    showMessage("Supabase is not loaded.", "error");
+  if (typeof VitalStreamDemo === "undefined") {
+    showMessage("Demo data module missing.", "error");
     return;
   }
 
@@ -99,17 +83,19 @@ async function registerDonor() {
   showMessage("Submitting donor data...");
 
   try {
-    const payload = {
+    const db = VitalStreamDemo.load();
+    const id = VitalStreamDemo.nextId(db, "donors");
+    db.donors.push({
+      id,
       name: fullNameInput.value.trim(),
       phone: phoneInput.value.trim() || null,
       blood_type: selectedBlood,
       location: cityInput.value.trim() || null,
       latitude: userCoords ? userCoords.latitude : null,
       longitude: userCoords ? userCoords.longitude : null,
-    };
-
-    const { error } = await supabaseClient.from("donors").insert([payload]);
-    if (error) throw error;
+      created_at: new Date().toISOString(),
+    });
+    VitalStreamDemo.save(db);
 
     showMessage("Registered successfully. Thank you for donating!", "success");
     fullNameInput.value = "";
