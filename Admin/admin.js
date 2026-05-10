@@ -17,7 +17,6 @@ const els = {
    sideButtons: document.querySelectorAll(".sideBtn"),
    contentViews: document.querySelectorAll(".contentView"),
    newRequestBtn: document.getElementById("newRequestBtn"),
-   notificationCount: document.getElementById("notificationCount"),
    clearFeedBtn: document.querySelector(".feedHeader button"),
    totalDonorsValue: document.getElementById("totalDonorsValue"),
    totalUnitsValue: document.getElementById("totalUnitsValue"),
@@ -39,12 +38,10 @@ const els = {
 };
 
 const state = {
-   unseenNotificationTotal: 0,
    activeView: "dashboardView",
    /** IDs we have already counted (avoids double-count from realtime + poll). */
    knownEmergencyRequestIds: new Set(),
    emergencyPollTimer: null,
-   didInitialPendingBell: false,
 };
 
 function toNumber(value) {
@@ -130,16 +127,6 @@ function getRequestPriority(urgencyLevel) {
    };
 }
 
-function updateNotificationBadge() {
-   const el = document.getElementById("notificationCount") || els.notificationCount;
-   if (el) el.textContent = String(state.unseenNotificationTotal);
-}
-
-function bumpUnseenEmergencyNotification() {
-   state.unseenNotificationTotal += 1;
-   updateNotificationBadge();
-}
-
 function rememberEmergencyRequestRows(rows) {
    (rows || []).forEach((row) => {
       if (row && row.id != null) state.knownEmergencyRequestIds.add(String(row.id));
@@ -210,7 +197,6 @@ async function pollNewEmergencyRequests() {
    if (!fresh.length) return;
    fresh.forEach((row) => {
       state.knownEmergencyRequestIds.add(String(row.id));
-      bumpUnseenEmergencyNotification();
       appendEmergencyFeedItem(row);
    });
    loadDashboardCounts();
@@ -343,11 +329,6 @@ async function loadDashboardCounts() {
    if (els.totalDonorsValue) els.totalDonorsValue.textContent = donors.toLocaleString();
    if (els.totalUnitsValue) els.totalUnitsValue.textContent = Math.round(units).toLocaleString();
    if (els.pendingRequestsValue) els.pendingRequestsValue.textContent = String(pending);
-   if (!state.didInitialPendingBell) {
-      state.didInitialPendingBell = true;
-      state.unseenNotificationTotal = pending;
-      updateNotificationBadge();
-   }
 }
 
 async function loadBloodStockLevels() {
@@ -588,8 +569,6 @@ function setupButtons() {
    });
    if (els.clearFeedBtn)
       els.clearFeedBtn.addEventListener("click", async () => {
-         state.unseenNotificationTotal = 0;
-         updateNotificationBadge();
          if (els.emergencyFeedList) {
             els.emergencyFeedList.innerHTML =
                '<div class="feedItem routine"><h4>Feed cleared</h4><p>New emergency requests will appear here.</p></div>';
@@ -645,7 +624,6 @@ function setupRealtimeListeners() {
             const idStr = String(row.id);
             if (!state.knownEmergencyRequestIds.has(idStr)) {
                state.knownEmergencyRequestIds.add(idStr);
-               bumpUnseenEmergencyNotification();
                appendEmergencyFeedItem(row);
                if (els.pendingRequestsValue) {
                   els.pendingRequestsValue.textContent = String(
@@ -687,7 +665,6 @@ async function initAdminPage() {
    setupViewSwitching();
    setupButtons();
    setupEventDelegation();
-   updateNotificationBadge();
    await loadDashboardSection();
    await loadInventorySection();
    await loadDonorsSection();

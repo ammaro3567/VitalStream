@@ -122,37 +122,12 @@ body{
     font-weight: 500;
 
 }
-.notificationCard{
+.overviewActions{
     display: flex;
     align-items: center;
     gap: 15px;
 }
-.notificationCard .bell-wrapper{
-    position: relative;
-    padding-right: 15px;
-    border-right: gray solid 1px;
-    cursor: pointer;
-}
-.notificationCard .ph-bell{
-    font-size: 30px;
-    color: rgb(145, 143, 143);
-}
-.notificationCard .badge{
-    position: absolute;
-    top: -8px;
-    right: 12px;
-    background-color: #b11227da;
-    color: white;
-    font-size: 12px;
-    font-weight: 600;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.notificationCard button{
+.overviewActions button{
     background-color: #B11226;
     width: 180px;
     height: 45px;
@@ -164,7 +139,7 @@ body{
     padding: 12px;
     cursor: pointer;
 }
-.notificationCard .ph-plus{
+.overviewActions .ph-plus{
     margin-right: 10px;
     font-size: 15px;
     font-weight: 900;
