@@ -79,9 +79,9 @@
           Blood Type
         </div>
 
-        <div class="blood-grid">
+        <div class="blood-row">
 
-          <button class="blood-btn active">A+</button>
+          <button class="blood-btn">A+</button>
           <button class="blood-btn">A-</button>
           <button class="blood-btn">B+</button>
           <button class="blood-btn">B-</button>
@@ -195,7 +195,7 @@
       <div class="inventory-header">
 
         <p>
-          Found <span id="resultsCount">0 units</span> nearby
+          Found <span id="resultsCount">4 units</span> nearby
         </p>
 
         <div class="sort-wrapper">
@@ -230,24 +230,98 @@
 
       </div>
 
-      <div class="cards-grid" id="hospitalGrid"></div>
-
-      <div class="pagination" id="pagination">
-
-        <div class="page">
-          <i class="fa-solid fa-chevron-left"></i>
+      <div class="cards-wrap" id="hospitalCards">
+        <div class="hospital-card" data-blood="A+" data-distance="4" data-status="Available" data-hospital="City General Hospital" data-units="14">
+          <div class="card-top">
+            <div class="hospital-info">
+              <div class="blood-icon blood-red">A+</div>
+              <div>
+                <h3>City General Hospital</h3>
+                <p><i class="fa-solid fa-location-dot"></i><span>4 km away</span></p>
+              </div>
+            </div>
+            <div>
+              <div class="badge green">● Available</div>
+              <div class="updated">Updated 12m ago</div>
+            </div>
+          </div>
+          <div class="card-bottom">
+            <div>
+              <div class="units">UNITS</div>
+              <div class="amount">450ml x 14</div>
+            </div>
+            <button type="button" class="reserve-btn" data-hospital="City%20General%20Hospital" data-blood="A+" data-units="14">Request Reserve</button>
+          </div>
         </div>
 
-        <div class="page active">1</div>
-
-        <div class="page">2</div>
-
-        <div class="page">3</div>
-
-        <div class="page">
-          <i class="fa-solid fa-chevron-right"></i>
+        <div class="hospital-card" data-blood="O-" data-distance="12" data-status="Critical" data-hospital="Regional Medical Center" data-units="6">
+          <div class="card-top">
+            <div class="hospital-info">
+              <div class="blood-icon blood-red">O-</div>
+              <div>
+                <h3>Regional Medical Center</h3>
+                <p><i class="fa-solid fa-location-dot"></i><span>12 km away</span></p>
+              </div>
+            </div>
+            <div>
+              <div class="badge red"><span class="critical-icon"><i class="fa-solid fa-triangle-exclamation"></i></span> Critical</div>
+              <div class="updated">Updated 5m ago</div>
+            </div>
+          </div>
+          <div class="card-bottom">
+            <div>
+              <div class="units">UNITS</div>
+              <div class="amount">450ml x 6</div>
+            </div>
+            <button type="button" class="emergency-btn" data-hospital="Regional%20Medical%20Center" data-blood="O-" data-units="6">Emergency Request</button>
+          </div>
         </div>
 
+        <div class="hospital-card" data-blood="B+" data-distance="8" data-status="Low Stock" data-hospital="St. Mary's Hospital" data-units="9">
+          <div class="card-top">
+            <div class="hospital-info">
+              <div class="blood-icon blood-orange">B+</div>
+              <div>
+                <h3>St. Mary's Hospital</h3>
+                <p><i class="fa-solid fa-location-dot"></i><span>8 km away</span></p>
+              </div>
+            </div>
+            <div>
+              <div class="badge orange">● Low Stock</div>
+              <div class="updated">Updated 1h ago</div>
+            </div>
+          </div>
+          <div class="card-bottom">
+            <div>
+              <div class="units">UNITS</div>
+              <div class="amount">450ml x 9</div>
+            </div>
+            <button type="button" class="reserve-btn" data-hospital="St.%20Mary's%20Hospital" data-blood="B+" data-units="9">Request Reserve</button>
+          </div>
+        </div>
+
+        <div class="hospital-card" data-blood="AB+" data-distance="22" data-status="Available" data-hospital="North Community Clinic" data-units="11">
+          <div class="card-top">
+            <div class="hospital-info">
+              <div class="blood-icon blood-red">AB+</div>
+              <div>
+                <h3>North Community Clinic</h3>
+                <p><i class="fa-solid fa-location-dot"></i><span>22 km away</span></p>
+              </div>
+            </div>
+            <div>
+              <div class="badge green">● Available</div>
+              <div class="updated">Updated 3h ago</div>
+            </div>
+          </div>
+          <div class="card-bottom">
+            <div>
+              <div class="units">UNITS</div>
+              <div class="amount">450ml x 11</div>
+            </div>
+            <button type="button" class="reserve-btn" data-hospital="North%20Community%20Clinic" data-blood="AB+" data-units="11">Request Reserve</button>
+          </div>
+        </div>
       </div>
 
     </main>
@@ -262,7 +336,6 @@
 
   </button>
 
-  <script src="../../demo-store.js"></script>
   <script src="VS.js"></script>
 
 </body>

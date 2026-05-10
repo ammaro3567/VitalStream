@@ -202,9 +202,9 @@ gap:10px;
 
 .blood-group{
 
-display:grid;
+display:flex;
 
-grid-template-columns:repeat(4,1fr);
+flex-wrap:wrap;
 
 gap:10px;
 
@@ -212,8 +212,13 @@ margin-top:10px;
 
 }
 
-
 .blood-group button{
+
+flex:1 1 calc(25% - 8px);
+
+min-width:52px;
+
+box-sizing:border-box;
 
 padding:10px;
 

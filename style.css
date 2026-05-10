@@ -77,10 +77,15 @@ body {
 
 .hero {
   margin-top: 24px;
-  display: grid;
-  grid-template-columns: 1.1fr 1fr;
+  display: flex;
+  flex-wrap: wrap;
   gap: 34px;
   align-items: center;
+}
+
+.hero-content {
+  flex: 1 1 420px;
+  min-width: 280px;
 }
 
 .tag {
@@ -184,6 +189,8 @@ h1 span {
 }
 
 .hero-image-card {
+  flex: 1 1 360px;
+  min-width: 280px;
   background: #f5f5f6;
   border: 1px solid #e2e5ea;
   border-radius: 18px;
@@ -241,8 +248,8 @@ h1 span {
 
 .stats {
   margin-top: 26px;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
+  flex-wrap: nowrap;
   background: #fff;
   border: 1px solid #eceff4;
   border-radius: 16px;
@@ -250,6 +257,8 @@ h1 span {
 }
 
 .stat {
+  flex: 1 1 0;
+  min-width: 0;
   border-right: 1px solid #eceff4;
   padding: 18px 22px;
 }
@@ -304,13 +313,16 @@ h1 span {
   cursor: pointer;
 }
 
-.help-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+.help-cards {
+  display: flex;
+  flex-wrap: wrap;
   gap: 16px;
 }
 
 .help-card {
+  flex: 1 1 280px;
+  min-width: 240px;
+  max-width: 100%;
   background: #fff;
   border: 1px solid #ebedf2;
   border-radius: 14px;
@@ -343,16 +355,20 @@ h1 span {
   font-weight: 600;
 }
 
-/* Contact / About page */
 .contact-page {
   padding: 28px 0 48px;
 }
 
 .contact-layout {
-  display: grid;
-  grid-template-columns: 1fr 280px;
+  display: flex;
+  flex-wrap: wrap;
   gap: 28px;
-  align-items: start;
+  align-items: flex-start;
+}
+
+.contact-main {
+  flex: 1 1 400px;
+  min-width: 0;
 }
 
 .contact-main h1 {
@@ -403,13 +419,15 @@ h1 span {
 
 .contact-form {
   margin-top: 16px;
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 14px;
   max-width: 520px;
 }
 
 .contact-form label {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 6px;
   font-size: 13px;
   font-weight: 600;
@@ -427,7 +445,7 @@ h1 span {
 .contact-submit {
   border: none;
   cursor: pointer;
-  justify-self: start;
+  align-self: flex-start;
   margin-top: 4px;
 }
 
@@ -439,6 +457,8 @@ h1 span {
 }
 
 .contact-sidebar {
+  flex: 0 0 280px;
+  max-width: 100%;
   background: #fff;
   border: 1px solid #ebedf2;
   border-radius: 14px;
@@ -480,21 +500,36 @@ h1 span {
 }
 
 @media (max-width: 900px) {
-  .contact-layout {
-    grid-template-columns: 1fr;
+  .contact-main,
+  .contact-sidebar {
+    flex: 1 1 100%;
   }
 
   .contact-sidebar {
     position: static;
+    flex-basis: auto;
   }
 
-  .hero {
-    grid-template-columns: 1fr;
+  .hero-content,
+  .hero-image-card {
+    flex: 1 1 100%;
   }
 
-  .stats,
-  .help-grid {
-    grid-template-columns: 1fr;
+  .stats {
+    flex-direction: column;
+  }
+
+  .stat {
+    border-right: none;
+    border-bottom: 1px solid #eceff4;
+  }
+
+  .stat:last-child {
+    border-bottom: none;
+  }
+
+  .help-cards .help-card {
+    flex: 1 1 100%;
   }
 
   .help-head {

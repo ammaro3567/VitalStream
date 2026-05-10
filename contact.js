@@ -5,12 +5,12 @@ document.getElementById("contactForm").addEventListener("submit", function (even
   const message = document.getElementById("contactMessage").value.trim();
   const status = document.getElementById("contactStatus");
 
-  const subject = encodeURIComponent("Vital Stream contact: " + name);
-  const body = encodeURIComponent(
-    "From: " + name + " <" + email + ">\n\n" + message
-  );
-  const mailto = "mailto:support@vitalstream.local?subject=" + subject + "&body=" + body;
+  if (!name || !email || !message) {
+    status.textContent = "Please fill in all fields.";
+    return;
+  }
 
-  status.textContent = "Opening your email app…";
-  window.location.href = mailto;
+  status.textContent =
+    "Thanks — your message is noted here only (demo; nothing is emailed or saved).";
+  document.getElementById("contactForm").reset();
 });

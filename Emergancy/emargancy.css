@@ -36,7 +36,7 @@ a {
     margin: auto;
 }
 
-/* Navbar (aligned with Search / Inventory page) */
+
 .navbar {
     position: sticky;
     top: 0;
@@ -129,7 +129,7 @@ a.btn {
     background: var(--red-dark);
 }
 
-/* Back to Home (same treatment as Donate page) */
+
 .back-wrap {
     width: min(560px, calc(100% - 32px));
     margin: 20px auto 0;
@@ -148,7 +148,7 @@ a.btn {
     text-decoration: none;
 }
 
-/* Header */
+
 .header {
     text-align: center;
     margin: 40px 0 20px;
@@ -162,7 +162,7 @@ a.btn {
     color: #777;
 }
 
-/* Card */
+
 .card {
     width: min(560px, calc(100% - 32px));
     margin: auto;
@@ -174,7 +174,7 @@ a.btn {
     transition: background 0.2s ease, border-top-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* Urgency */
+
 .title {
     font-size: 12px;
     color: #888;
@@ -221,7 +221,7 @@ a.btn {
     color: #991b1b;
 }
 
-/* Inputs */
+
 .input-group {
     margin-bottom: 15px;
 }
@@ -249,7 +249,7 @@ a.btn {
     box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.15);
 }
 
-/* Row */
+
 .row {
     display: flex;
     gap: 10px;
@@ -259,7 +259,7 @@ a.btn {
     flex: 1;
 }
 
-/* Button */
+
 .submit-btn {
     width: 100%;
     padding: 12px;
@@ -304,7 +304,7 @@ a.btn {
     color: #b91c1c;
 }
 
-/* Bottom Boxes */
+
 .info-boxes {
     display: flex;
     justify-content: center;
@@ -324,7 +324,7 @@ a.btn {
     margin-bottom: 5px;
 }
 
-/* Urgency visual states */
+
 .card.urgency-normal {
     border-top-color: #9ca3af;
     background: #ffffff;
@@ -341,7 +341,7 @@ a.btn {
     box-shadow: 0 8px 26px rgba(177, 18, 38, 0.12);
 }
 
-/* Basic responsiveness */
+
 @media (max-width: 700px) {
     .nav-wrapper {
         height: auto;

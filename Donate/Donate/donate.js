@@ -73,31 +73,17 @@ function validateForm() {
 
 function registerDonor() {
   if (!validateForm()) return;
-  if (typeof VitalStreamDemo === "undefined") {
-    showMessage("Demo data module missing.", "error");
-    return;
-  }
 
+  const name = fullNameInput.value.trim();
   registerBtn.disabled = true;
   registerBtn.textContent = "REGISTERING...";
   showMessage("Submitting donor data...");
 
-  try {
-    const db = VitalStreamDemo.load();
-    const id = VitalStreamDemo.nextId(db, "donors");
-    db.donors.push({
-      id,
-      name: fullNameInput.value.trim(),
-      phone: phoneInput.value.trim() || null,
-      blood_type: selectedBlood,
-      location: cityInput.value.trim() || null,
-      latitude: userCoords ? userCoords.latitude : null,
-      longitude: userCoords ? userCoords.longitude : null,
-      created_at: new Date().toISOString(),
-    });
-    VitalStreamDemo.save(db);
-
-    showMessage("Registered successfully. Thank you for donating!", "success");
+  window.setTimeout(() => {
+    showMessage(
+      `Thank you, ${name}. Your registration details were received (demo only — nothing is stored).`,
+      "success"
+    );
     fullNameInput.value = "";
     emailInput.value = "";
     dobInput.value = "";
@@ -105,12 +91,9 @@ function registerDonor() {
     cityInput.value = "";
     bloodButtons.forEach((btn) => btn.classList.remove("active"));
     selectedBlood = "";
-  } catch (error) {
-    showMessage(`Registration failed: ${error.message || "Unknown error"}`, "error");
-  } finally {
     registerBtn.disabled = false;
     registerBtn.textContent = "REGISTER AS DONOR →";
-  }
+  }, 400);
 }
 
 bloodButtons.forEach((btn) => {

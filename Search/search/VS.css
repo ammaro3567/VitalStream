@@ -1,6 +1,4 @@
- /* =========================
-       RESET
-    ========================== */
+ 
 
     *{
       margin:0;
@@ -53,9 +51,7 @@
       margin:auto;
     }
 
-    /* =========================
-       NAVBAR
-    ========================== */
+    
 
     .navbar{
 
@@ -217,23 +213,31 @@
       background:var(--red-dark);
     }
 
-    /* =========================
-       DASHBOARD
-    ========================== */
+    
 
     .dashboard{
 
-      display:grid;
-      grid-template-columns:320px 1fr;
-
+      display:flex;
+      flex-wrap:wrap;
+      align-items:flex-start;
       gap:28px;
 
       padding:28px 0 140px;
     }
 
-    /* =========================
-       SIDEBAR
-    ========================== */
+    .dashboard aside{
+
+      flex:0 0 320px;
+      max-width:100%;
+    }
+
+    .dashboard main{
+
+      flex:1 1 400px;
+      min-width:0;
+    }
+
+    
 
     .sidebar-card{
 
@@ -277,12 +281,12 @@
       margin-bottom:14px;
     }
 
-    /* BLOOD GRID */
+    
 
-    .blood-grid{
+    .blood-row{
 
-      display:grid;
-      grid-template-columns:repeat(4,1fr);
+      display:flex;
+      flex-wrap:wrap;
 
       gap:10px;
 
@@ -290,6 +294,10 @@
     }
 
     .blood-btn{
+
+      flex:1 1 calc(25% - 8px);
+      min-width:52px;
+      box-sizing:border-box;
 
       height:64px;
 
@@ -320,7 +328,7 @@
       inset 0 0 0 2px rgba(255,255,255,.25);
     }
 
-    /* RANGE */
+    
 
     .distance-head{
 
@@ -395,7 +403,7 @@
       color:#8C9198;
     }
 
-    /* TOGGLE */
+    
 
     .toggle-box{
 
@@ -469,7 +477,7 @@
       left:28px;
     }
 
-    /* DRIVE CARD */
+    
 
     .drive-card{
 
@@ -530,9 +538,7 @@
       cursor:pointer;
     }
 
-    /* =========================
-       MAIN
-    ========================== */
+    
 
     .main-title{
 
@@ -554,7 +560,7 @@
       margin-bottom:28px;
     }
 
-    /* SEARCH */
+    
 
     .search-box{
 
@@ -609,7 +615,7 @@
       border-radius:18px;
     }
 
-    /* RESULTS + SORT */
+    
 
     .inventory-header{
 
@@ -679,20 +685,21 @@
       pointer-events:none;
     }
 
-    /* =========================
-       GRID
-    ========================== */
+    
 
-    .cards-grid{
+    .cards-wrap{
 
-      display:grid;
-
-      grid-template-columns:repeat(2,1fr);
+      display:flex;
+      flex-wrap:wrap;
 
       gap:22px;
     }
 
     .hospital-card{
+
+      flex:1 1 calc(50% - 11px);
+      min-width:280px;
+      box-sizing:border-box;
 
       background:white;
 
@@ -760,9 +767,7 @@
       margin-bottom:7px;
     }
 
-    /* =========================
-       LOCATION ALIGNMENT
-    ========================== */
+    
 
     .hospital-info p{
 
@@ -791,10 +796,8 @@
       transform:translateY(-1px);
     }
 
-    /* BADGES */
-/* =========================
-   BADGES
-========================== */
+    
+
 
 .badge{
 
@@ -813,7 +816,7 @@
   margin-bottom:10px;
 }
 
-/* AVAILABLE */
+
 
 .green{
 
@@ -822,7 +825,7 @@
   color:var(--green);
 }
 
-/* LOW STOCK */
+
 
 .orange{
 
@@ -831,7 +834,7 @@
   color:var(--orange);
 }
 
-/* CRITICAL */
+
 
 .red{
 
@@ -840,9 +843,7 @@
   color:var(--red);
 }
 
-/* =========================
-   CRITICAL ICON BOX
-========================== */
+
 
 .critical-icon{
 
@@ -895,7 +896,7 @@
       font-weight:800;
     }
 
-    /* BUTTONS */
+    
 
     .reserve-btn{
 
@@ -952,9 +953,7 @@
       transform:translateY(-2px);
     }
 
-    /* =========================
-       PAGINATION
-    ========================== */
+    
     .pagination{
 
     display:none;
@@ -1019,7 +1018,7 @@
       transform:none;
     }
 
-    /* FLOAT BUTTON */
+    
 
     .map-btn{
 
@@ -1060,19 +1059,20 @@
       font-size:20px;
     }
 
-    /* RESPONSIVE */
+    
 
     @media(max-width:1200px){
 
-      .cards-grid{
-        grid-template-columns:1fr;
+      .cards-wrap .hospital-card{
+        flex:1 1 100%;
       }
     }
 
     @media(max-width:992px){
 
-      .dashboard{
-        grid-template-columns:1fr;
+      .dashboard aside,
+      .dashboard main{
+        flex:1 1 100%;
       }
 
       .nav-links{
@@ -1118,4 +1118,8 @@
       .subtitle{
         font-size:18px;
       }
+    }
+
+    .hospital-card.is-hidden{
+      display:none !important;
     }

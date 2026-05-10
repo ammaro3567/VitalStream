@@ -1,356 +1,215 @@
-const hospitalGrid = document.getElementById("hospitalGrid");
+const hospitalCards = document.getElementById("hospitalCards");
 const searchInput = document.getElementById("searchInput");
 const emergencyToggle = document.getElementById("emergencyToggle");
 const sortSelect = document.getElementById("sortSelect");
 const resultsCount = document.getElementById("resultsCount");
-const pagination = document.getElementById("pagination");
 const resetFilters = document.getElementById("resetFilters");
-const bloodButtons = document.querySelectorAll(".blood-btn");
 const range = document.getElementById("distanceRange");
 const distanceValue = document.getElementById("distanceValue");
 const mapBtn = document.querySelector(".map-btn");
 const searchBtn = document.querySelector(".search-btn");
+const bloodButtons = document.querySelectorAll(".blood-btn");
 const EMERGENCY_PREFILL_KEY = "vital_stream_emergency_prefill";
 
-const PER_PAGE = 6;
-let currentPage = 1;
 let emergencyOnly = false;
 let selectedBlood = null;
-let selectedDistance = Number(range.value);
-let hospitalData = [];
-let latestFilteredData = [];
 
-function normalizeStatus(status) {
-  const value = String(status || "").toLowerCase();
-  if (value.includes("critical")) return "Critical";
-  if (value.includes("low")) return "Low Stock";
-  return "Available";
+function getCards() {
+  const list = hospitalCards.querySelectorAll(".hospital-card");
+  return Array.prototype.slice.call(list);
 }
 
-function formatUpdatedLabel(dateString) {
-  const updatedAt = new Date(dateString);
-  const diffMs = Date.now() - updatedAt.getTime();
-  const diffMinutes = Math.floor(diffMs / (1000 * 60));
-
-  if (diffMinutes < 1) return "Updated just now";
-  if (diffMinutes < 60) return `Updated ${diffMinutes}m ago`;
-  const diffHours = Math.floor(diffMinutes / 60);
-  if (diffHours < 24) return `Updated ${diffHours}h ago`;
-  const diffDays = Math.floor(diffHours / 24);
-  return `Updated ${diffDays}d ago`;
-}
-
-function updateRangeTrack() {
-  const value = Number(range.value);
-  const percent = ((value - Number(range.min)) / (Number(range.max) - Number(range.min))) * 100;
-  range.style.background = `linear-gradient(to right, #B2182B ${percent}%, #E5E7EB ${percent}%)`;
-}
-
-function renderHospitals(data) {
-  hospitalGrid.innerHTML = "";
-  const totalPages = Math.ceil(data.length / PER_PAGE);
-  pagination.style.display = totalPages <= 1 ? "none" : "flex";
-
-  if (currentPage > totalPages && totalPages > 0) {
-    currentPage = totalPages;
+function sortVisibleCards() {
+  const order = sortSelect.value;
+  const frag = document.createDocumentFragment();
+  const all = getCards();
+  const visible = [];
+  const hidden = [];
+  for (let i = 0; i < all.length; i++) {
+    if (all[i].classList.contains("is-hidden")) hidden.push(all[i]);
+    else visible.push(all[i]);
   }
-
-  const start = (currentPage - 1) * PER_PAGE;
-  const end = start + PER_PAGE;
-  const paginatedItems = data.slice(start, end);
-
-  resultsCount.textContent = `${data.length} units`;
-
-  if (paginatedItems.length === 0) {
-    hospitalGrid.innerHTML = `
-      <div class="hospital-card">
-        <div class="card-top">
-          <div class="hospital-info">
-            <div>
-              <h3>No inventory found</h3>
-              <p>Try changing filters or distance.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-    renderPagination(totalPages, data);
-    return;
-  }
-
-  paginatedItems.forEach((item) => {
-    let badgeClass = "green";
-    let bloodClass = "blood-red";
-    if (item.status === "Low Stock") {
-      badgeClass = "orange";
-      bloodClass = "blood-orange";
+  visible.sort(function (a, b) {
+    const da = Number(a.dataset.distance);
+    const db = Number(b.dataset.distance);
+    const sa = a.dataset.status;
+    const sb = b.dataset.status;
+    if (order === "closest") return da - db;
+    if (order === "farthest") return db - da;
+    if (order === "critical") {
+      if (sa === "Critical" && sb !== "Critical") return -1;
+      if (sb === "Critical" && sa !== "Critical") return 1;
+      return da - db;
     }
-    if (item.status === "Critical") {
-      badgeClass = "red";
-      bloodClass = "blood-red";
-    }
-
-    const encodedHospital = encodeURIComponent(item.hospital);
-    const buttonHTML =
-      item.status === "Critical"
-        ? `<button class="emergency-btn" data-hospital="${encodedHospital}" data-blood="${item.blood}" data-units="${item.units}">Emergency Request</button>`
-        : `<button class="reserve-btn" data-hospital="${encodedHospital}" data-blood="${item.blood}" data-units="${item.units}">Request Reserve</button>`;
-
-    hospitalGrid.innerHTML += `
-      <div class="hospital-card">
-        <div class="card-top">
-          <div class="hospital-info">
-            <div class="blood-icon ${bloodClass}">${item.blood}</div>
-            <div>
-              <h3>${item.hospital}</h3>
-              <p><i class="fa-solid fa-location-dot"></i><span>${item.distance} km away</span></p>
-            </div>
-          </div>
-          <div>
-            <div class="badge ${badgeClass}">
-              ${item.status === "Critical" ? `<span class="critical-icon"><i class="fa-solid fa-triangle-exclamation"></i></span>` : `●`}
-              ${item.status}
-            </div>
-            <div class="updated">${item.updated}</div>
-          </div>
-        </div>
-        <div class="card-bottom">
-          <div>
-            <div class="units">UNITS</div>
-            <div class="amount">450ml x ${item.units}</div>
-          </div>
-          ${buttonHTML}
-        </div>
-      </div>
-    `;
+    return 0;
   });
+  for (let j = 0; j < visible.length; j++) frag.appendChild(visible[j]);
+  for (let h = 0; h < hidden.length; h++) frag.appendChild(hidden[h]);
+  hospitalCards.appendChild(frag);
+}
 
-  renderPagination(totalPages, data);
+function applyFilters() {
+  const search = searchInput.value.trim().toLowerCase();
+  const maxDist = Number(range.value);
+  let visibleCount = 0;
+  const cards = getCards();
+  for (let i = 0; i < cards.length; i++) {
+    const card = cards[i];
+    const d = Number(card.dataset.distance);
+    const b = card.dataset.blood || "";
+    const st = card.dataset.status || "";
+    const hosp = (card.dataset.hospital || "").toLowerCase();
+    let ok = d <= maxDist;
+    if (selectedBlood) ok = ok && b === selectedBlood;
+    if (search) ok = ok && (hosp.indexOf(search) !== -1 || b.toLowerCase().indexOf(search) !== -1);
+    if (emergencyOnly) ok = ok && st === "Critical";
+    if (ok) {
+      card.classList.remove("is-hidden");
+      visibleCount++;
+    } else {
+      card.classList.add("is-hidden");
+    }
+  }
+  sortVisibleCards();
+  resultsCount.textContent = visibleCount + " units";
 }
 
 function openEmergencyPageWithPrefill(item, urgencyLevel) {
-  localStorage.setItem(
-    EMERGENCY_PREFILL_KEY,
-    JSON.stringify({
-      hospital_name: item.hospital,
-      blood_type: item.blood,
-      units_needed: item.units,
-      urgency_level: urgencyLevel,
-      savedAt: new Date().toISOString(),
-    })
-  );
-
+  const obj = {
+    hospital_name: item.hospital,
+    blood_type: item.blood,
+    units_needed: item.units,
+    urgency_level: urgencyLevel,
+    savedAt: new Date().toISOString(),
+  };
+  localStorage.setItem(EMERGENCY_PREFILL_KEY, JSON.stringify(obj));
   window.location.href = "../../Emergancy/emergancy.html";
 }
 
-function renderPagination(totalPages, data) {
-  pagination.innerHTML = "";
-  if (totalPages <= 1) return;
-
-  pagination.innerHTML += `<div class="page prev-page"><i class="fa-solid fa-chevron-left"></i></div>`;
-  for (let i = 1; i <= totalPages; i++) {
-    pagination.innerHTML += `<div class="page ${currentPage === i ? "active" : ""}" data-page="${i}">${i}</div>`;
+function openMapForNearestVisible() {
+  const cards = getCards();
+  const vis = [];
+  for (let i = 0; i < cards.length; i++) {
+    if (!cards[i].classList.contains("is-hidden")) vis.push(cards[i]);
   }
-  pagination.innerHTML += `<div class="page next-page"><i class="fa-solid fa-chevron-right"></i></div>`;
-
-  document.querySelectorAll("[data-page]").forEach((page) => {
-    page.addEventListener("click", () => {
-      currentPage = Number(page.dataset.page);
-      renderHospitals(data);
-    });
-  });
-
-  document.querySelector(".prev-page").addEventListener("click", () => {
-    if (currentPage > 1) {
-      currentPage -= 1;
-      renderHospitals(data);
-    }
-  });
-
-  document.querySelector(".next-page").addEventListener("click", () => {
-    if (currentPage < totalPages) {
-      currentPage += 1;
-      renderHospitals(data);
-    }
-  });
-}
-
-function filterHospitals() {
-  const searchValue = searchInput.value.trim().toLowerCase();
-  let filtered = [...hospitalData];
-
-  if (selectedBlood) {
-    filtered = filtered.filter((item) => item.blood === selectedBlood);
-  }
-
-  filtered = filtered.filter((item) => Number(item.distance) <= selectedDistance);
-
-  if (searchValue) {
-    filtered = filtered.filter(
-      (item) =>
-        item.hospital.toLowerCase().includes(searchValue) || item.blood.toLowerCase().includes(searchValue)
-    );
-  }
-
-  if (emergencyOnly) {
-    filtered = filtered.filter((item) => item.status === "Critical");
-  }
-
-  const sortValue = sortSelect.value;
-  if (sortValue === "closest") filtered.sort((a, b) => a.distance - b.distance);
-  if (sortValue === "farthest") filtered.sort((a, b) => b.distance - a.distance);
-  if (sortValue === "critical") {
-    filtered.sort((a, b) => {
-      if (a.status === "Critical" && b.status !== "Critical") return -1;
-      if (b.status === "Critical" && a.status !== "Critical") return 1;
-      return a.distance - b.distance;
-    });
-  }
-
-  latestFilteredData = filtered;
-  currentPage = 1;
-  renderHospitals(filtered);
-}
-
-function openMapForNearestResult() {
-  const list = latestFilteredData.length ? latestFilteredData : hospitalData;
-
-  if (!list.length) {
-    alert("No hospitals to show on map.");
+  if (!vis.length) {
+    alert("No hospitals match the current filters.");
     return;
   }
-
-  const nearest = [...list].sort((a, b) => a.distance - b.distance)[0];
+  vis.sort(function (a, b) {
+    return Number(a.dataset.distance) - Number(b.dataset.distance);
+  });
+  const nearest = vis[0];
+  let name = nearest.dataset.hospital;
+  const h3 = nearest.querySelector("h3");
+  if (!name && h3) name = h3.textContent;
+  if (!name) name = "Hospital";
   const savedLocationRaw = localStorage.getItem("vital_stream_user_location");
-
   if (savedLocationRaw) {
     try {
       const savedLocation = JSON.parse(savedLocationRaw);
       if (savedLocation.latitude && savedLocation.longitude) {
-        const origin = `${savedLocation.latitude},${savedLocation.longitude}`;
-        const destination = encodeURIComponent(nearest.hospital);
+        const origin = savedLocation.latitude + "," + savedLocation.longitude;
+        const destination = encodeURIComponent(name);
         window.open(
-          `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}&travelmode=driving`,
+          "https://www.google.com/maps/dir/?api=1&origin=" +
+            origin +
+            "&destination=" +
+            destination +
+            "&travelmode=driving",
           "_blank"
         );
         return;
       }
-    } catch (error) {}
+    } catch (err) {}
   }
-
   window.open(
-    `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(nearest.hospital)}`,
+    "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(name),
     "_blank"
   );
 }
 
-function loadInventoryFromDemo() {
-  if (typeof VitalStreamDemo === "undefined") {
-    hospitalData = [];
-    filterHospitals();
-    return;
-  }
-  const db = VitalStreamDemo.load();
-  hospitalData = (db.inventory_units || []).map((item) => ({
-    blood: item.blood_type || "N/A",
-    hospital: item.location || "Unknown Center",
-    distance: Number(item.distance_km || 0),
-    units: Number(item.units || 0),
-    status: normalizeStatus(item.status),
-    updated: formatUpdatedLabel(item.updated_at),
-  }));
-  if (hospitalData.length === 0) {
-    hospitalData = [
-      {
-        blood: "A+",
-        hospital: "Demo Hospital",
-        distance: 3,
-        units: 12,
-        status: "Available",
-        updated: "Updated just now",
-      },
-    ];
-  }
-  filterHospitals();
+function updateRangeTrack() {
+  const value = Number(range.value);
+  const min = Number(range.min);
+  const max = Number(range.max);
+  const percent = ((value - min) / (max - min)) * 100;
+  range.style.background =
+    "linear-gradient(to right, #B2182B " + percent + "%, #E5E7EB " + percent + "%)";
 }
 
-searchInput.addEventListener("input", filterHospitals);
-sortSelect.addEventListener("change", filterHospitals);
-if (searchBtn) {
-  searchBtn.addEventListener("click", filterHospitals);
-}
+searchInput.addEventListener("input", applyFilters);
+sortSelect.addEventListener("change", applyFilters);
+if (searchBtn) searchBtn.addEventListener("click", applyFilters);
 
-emergencyToggle.addEventListener("click", () => {
+emergencyToggle.addEventListener("click", function () {
   emergencyOnly = !emergencyOnly;
   emergencyToggle.classList.toggle("active");
-  filterHospitals();
+  applyFilters();
 });
 
-resetFilters.addEventListener("click", () => {
+resetFilters.addEventListener("click", function () {
   selectedBlood = null;
-  bloodButtons.forEach((btn) => btn.classList.remove("active"));
-  selectedDistance = 50;
-  range.value = 50;
-  distanceValue.textContent = 50;
-  updateRangeTrack();
+  for (let i = 0; i < bloodButtons.length; i++) {
+    bloodButtons[i].classList.remove("active");
+  }
+  range.value = "15";
+  distanceValue.textContent = "15";
   emergencyOnly = false;
   emergencyToggle.classList.remove("active");
   searchInput.value = "";
   sortSelect.value = "closest";
-  currentPage = 1;
-  filterHospitals();
+  updateRangeTrack();
+  applyFilters();
 });
 
-bloodButtons.forEach((btn) => {
-  btn.addEventListener("click", () => {
-    bloodButtons.forEach((b) => b.classList.remove("active"));
+const bloodRowEl = document.querySelector(".blood-row");
+if (bloodRowEl) {
+  bloodRowEl.addEventListener("click", function (e) {
+    const btn = e.target.closest(".blood-btn");
+    if (!btn) return;
+    for (let x = 0; x < bloodButtons.length; x++) {
+      bloodButtons[x].classList.remove("active");
+    }
     btn.classList.add("active");
     selectedBlood = btn.textContent.trim();
-    filterHospitals();
+    applyFilters();
   });
-});
+}
 
-range.addEventListener("input", () => {
-  selectedDistance = Number(range.value);
+range.addEventListener("input", function () {
   distanceValue.textContent = range.value;
   updateRangeTrack();
-  filterHospitals();
+  applyFilters();
 });
 
-if (mapBtn) {
-  mapBtn.addEventListener("click", openMapForNearestResult);
-}
+if (mapBtn) mapBtn.addEventListener("click", openMapForNearestVisible);
 
-if (hospitalGrid) {
-  hospitalGrid.addEventListener("click", (event) => {
-    const reserveButton = event.target.closest(".reserve-btn");
-    if (reserveButton) {
-      openEmergencyPageWithPrefill(
-        {
-          hospital: decodeURIComponent(reserveButton.dataset.hospital || ""),
-          blood: reserveButton.dataset.blood || "",
-          units: Number(reserveButton.dataset.units || 1),
-        },
-        "Urgent"
-      );
-      return;
-    }
-
-    const emergencyButton = event.target.closest(".emergency-btn");
-    if (emergencyButton) {
-      openEmergencyPageWithPrefill(
-        {
-          hospital: decodeURIComponent(emergencyButton.dataset.hospital || ""),
-          blood: emergencyButton.dataset.blood || "",
-          units: Number(emergencyButton.dataset.units || 1),
-        },
-        "Critical"
-      );
-    }
-  });
-}
+hospitalCards.addEventListener("click", function (e) {
+  const reserve = e.target.closest(".reserve-btn");
+  if (reserve) {
+    openEmergencyPageWithPrefill(
+      {
+        hospital: decodeURIComponent(reserve.dataset.hospital || ""),
+        blood: reserve.dataset.blood || "",
+        units: Number(reserve.dataset.units || 1),
+      },
+      "Urgent"
+    );
+    return;
+  }
+  const emerg = e.target.closest(".emergency-btn");
+  if (emerg) {
+    openEmergencyPageWithPrefill(
+      {
+        hospital: decodeURIComponent(emerg.dataset.hospital || ""),
+        blood: emerg.dataset.blood || "",
+        units: Number(emerg.dataset.units || 1),
+      },
+      "Critical"
+    );
+  }
+});
 
 updateRangeTrack();
-const preSelectedBlood = document.querySelector(".blood-btn.active");
-if (preSelectedBlood) selectedBlood = preSelectedBlood.textContent.trim();
-loadInventoryFromDemo();
+applyFilters();

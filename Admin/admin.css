@@ -211,14 +211,14 @@ body{
     font-size: 15px;
     font-weight: 600;
 }
-/* Existing styles... */
+
 .dashboard .card p{
     color: #000000;
     font-size: 24px; 
     font-weight: 700;
 }
 
-/* Blood Stock Levels Styles */
+
 .blood-stock-container {
     margin: 0;
     padding: 20px;
@@ -613,7 +613,7 @@ body{
     align-items: center;
     gap: 8px;
 }
-.miniStatGrid{
+.miniStatRow{
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
@@ -702,7 +702,7 @@ body{
     gap: 8px;
     flex-wrap: wrap;
 }
-.settingsGrid{
+.settingsRow{
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;

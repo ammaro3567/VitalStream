@@ -90,52 +90,19 @@ function submitEmergencyRequest() {
 
   if (!validateEmergencyForm()) return;
 
-  if (typeof VitalStreamDemo === "undefined") {
-    showStatus("Demo data module missing.", "error");
-    return;
-  }
-
   submitBtn.disabled = true;
   submitBtn.textContent = "BROADCASTING...";
   showStatus("Sending emergency request...", "info");
 
-  const payload = {
-    hospital_name: hospitalInput.value.trim(),
-    blood_type: bloodTypeSelect.value,
-    urgency_level: selectedUrgency,
-    status: "pending",
-  };
-
-  const notes = notesTextarea.value.trim();
-  const patientName = patientNameInput.value.trim();
-  const unitsNeeded = unitsSelect.value.trim();
-  if (notes) {
-    payload.hospital_name = `${payload.hospital_name} | Patient: ${patientName} | Units: ${unitsNeeded} | Notes: ${notes}`;
-  } else {
-    payload.hospital_name = `${payload.hospital_name} | Patient: ${patientName} | Units: ${unitsNeeded}`;
-  }
-
-  try {
-    const db = VitalStreamDemo.load();
-    const id = VitalStreamDemo.nextId(db, "emergency_requests");
-    db.emergency_requests.push({
-      id,
-      hospital_name: payload.hospital_name,
-      blood_type: payload.blood_type,
-      urgency_level: payload.urgency_level,
-      status: payload.status,
-      created_at: new Date().toISOString(),
-    });
-    VitalStreamDemo.save(db);
-
-    showStatus("Emergency request saved (demo). Open admin dashboard to see it.", "success");
+  window.setTimeout(() => {
+    showStatus(
+      "Your request was received (demo only — it is not stored or sent anywhere).",
+      "success"
+    );
     clearForm();
-  } catch (error) {
-    showStatus("Could not save request.", "error");
-  } finally {
     submitBtn.disabled = false;
     submitBtn.textContent = "BROADCAST REQUEST";
-  }
+  }, 450);
 }
 
 function clearForm() {
